@@ -5,6 +5,11 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+# Bake the API base URL into the bundle at build time.
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 RUN npm run build
 
 FROM nginx:alpine
