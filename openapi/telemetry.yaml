@@ -25,6 +25,20 @@ paths:
           required: false
           schema:
             $ref: '#/components/schemas/SensorStatus'
+        - name: start
+          in: query
+          description: Inclusive start of updated_at range (ISO 8601).
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          description: Inclusive end of updated_at range (ISO 8601).
+          required: false
+          schema:
+            type: string
+            format: date-time
         - name: page
           in: query
           description: 1-based page number.

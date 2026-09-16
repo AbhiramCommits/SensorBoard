@@ -154,6 +154,10 @@ export interface operations {
                 q?: string;
                 type?: components["schemas"]["SensorType"];
                 status?: components["schemas"]["SensorStatus"];
+                /** @description Inclusive start of updated_at range (ISO 8601). */
+                start?: string;
+                /** @description Inclusive end of updated_at range (ISO 8601). */
+                end?: string;
                 /** @description 1-based page number. */
                 page?: number;
                 /** @description Number of items per page. */

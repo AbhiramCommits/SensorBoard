@@ -52,6 +52,8 @@ def list_sensors(
     q: str | None = Query(None, description="Free-text search across sensor name and location"),
     type: schemas.SensorType | None = Query(None),
     status: schemas.SensorStatus | None = Query(None),
+    start: datetime | None = Query(None, description="Inclusive start of updated_at range (ISO 8601)"),
+    end: datetime | None = Query(None, description="Inclusive end of updated_at range (ISO 8601)"),
     page: int = Query(1, ge=1, description="1-based page number"),
     page_size: int = Query(20, ge=1, le=100, description="Number of items per page"),
     db: Session = Depends(get_db),
@@ -69,6 +71,10 @@ def list_sensors(
         stmt = stmt.where(models.Sensor.type == type)
     if status is not None:
         stmt = stmt.where(models.Sensor.status == status)
+    if start is not None:
+        stmt = stmt.where(models.Sensor.updated_at >= to_naive_utc(start))
+    if end is not None:
+        stmt = stmt.where(models.Sensor.updated_at <= to_naive_utc(end))
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     items = db.scalars(

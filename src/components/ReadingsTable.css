@@ -1,0 +1,33 @@
+@media (max-width: 768px) {
+  .readings-table thead {
+    display: none;
+  }
+
+  .readings-table,
+  .readings-table tbody,
+  .readings-table tr,
+  .readings-table td {
+    display: block;
+  }
+
+  .readings-table tr {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .readings-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border: none;
+    padding: var(--space-1) 0;
+  }
+
+  .readings-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+}

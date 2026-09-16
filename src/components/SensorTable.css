@@ -1,0 +1,46 @@
+.sensor-table__row {
+  cursor: pointer;
+}
+
+.sensor-table__row:hover {
+  background: var(--color-muted-bg);
+}
+
+.sensor-table__row:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+@media (max-width: 768px) {
+  .sensor-table thead {
+    display: none;
+  }
+
+  .sensor-table,
+  .sensor-table tbody,
+  .sensor-table tr,
+  .sensor-table td {
+    display: block;
+  }
+
+  .sensor-table tr {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .sensor-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border: none;
+    padding: var(--space-1) 0;
+  }
+
+  .sensor-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+}

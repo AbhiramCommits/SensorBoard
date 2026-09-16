@@ -8,12 +8,12 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sensorboard -d sensorboard"]
+      test: ['CMD-SHELL', 'pg_isready -U sensorboard -d sensorboard']
       interval: 5s
       timeout: 3s
       retries: 10
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   api:
     build: ./backend
@@ -23,7 +23,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - '8000:8000'
 
   web:
     image: node:22-alpine
@@ -37,7 +37,7 @@ services:
     depends_on:
       - api
     ports:
-      - "5173:5173"
+      - '5173:5173'
 
 volumes:
   pgdata:

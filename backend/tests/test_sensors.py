@@ -79,6 +79,28 @@ def test_filter_combined_type_status(client):
     assert body["total"] == 1
 
 
+def test_filter_updated_at_range(client):
+    body = client.get(
+        "/api/sensors",
+        params={"start": "2026-02-01T09:00:00", "end": "2026-02-01T12:00:00"},
+    ).json()
+    assert sorted(item["id"] for item in body["items"]) == [
+        "sens-hum-01",
+        "sens-temp-01",
+        "sens-vib-01",
+    ]
+    assert body["total"] == 3
+
+    body = client.get(
+        "/api/sensors", params={"start": "2026-02-01T09:00:00Z"}
+    ).json()
+    assert sorted(item["id"] for item in body["items"]) == [
+        "sens-hum-01",
+        "sens-temp-01",
+        "sens-vib-01",
+    ]
+
+
 def test_filter_invalid_enum_rejected(client):
     assert client.get("/api/sensors", params={"type": "wind"}).status_code == 422
     assert client.get("/api/sensors", params={"status": "sleeping"}).status_code == 422
