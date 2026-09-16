@@ -32,6 +32,30 @@ Point `VITE_API_BASE_URL` at a running TelemetryAPI instance (defaults to
 are generated from `openapi/telemetry.yaml`; edit the spec, then run
 `npm run gen:api`.
 
+## Backend
+
+FastAPI implementation of TelemetryAPI lives in `backend/` (Python 3.11,
+SQLAlchemy 2.0, Pydantic v2). It defaults to SQLite
+(`sqlite:///./telemetry.db`) and uses PostgreSQL when `DATABASE_URL` is set.
+
+```sh
+cd backend
+python3.11 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+.venv/bin/python -m app.seed      # create tables + seed 40 sensors / 30 days of readings
+.venv/bin/python -m uvicorn app.main:app --reload
+```
+
+Tests: `.venv/bin/python -m pytest` (includes a check that the generated
+OpenAPI schema paths match `openapi/telemetry.yaml`).
+
+## Docker
+
+`docker compose up` starts PostgreSQL, the seeded API, and the Vite dev server:
+
+- web: http://localhost:5173
+- api: http://localhost:8000 (OpenAPI docs at /docs)
+
 ## UI
 
 Wireframes in `docs/wireframe.md` are the build contract for the UI.
