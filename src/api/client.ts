@@ -47,7 +47,12 @@ function buildQueryString(params?: Record<string, QueryValue>): string {
 }
 
 function isAbortError(error: unknown): boolean {
-  return error instanceof Error && error.name === 'AbortError'
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    (error as { name?: unknown }).name === 'AbortError'
+  )
 }
 
 async function extractErrorMessage(response: Response): Promise<string> {

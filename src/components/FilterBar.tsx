@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import type { SensorStatus, SensorType } from '../api/client'
 import { SENSOR_STATUSES, SENSOR_TYPES } from '../constants'
+import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import './FilterBar.css'
 
 export interface FilterBarValues {
@@ -17,6 +19,23 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ values, onChange, onReset }: FilterBarProps) {
+  const [qInput, setQInput] = useState(values.q)
+  const debouncedQ = useDebouncedValue(qInput, 300)
+  const [prevUrlQ, setPrevUrlQ] = useState(values.q)
+
+  if (values.q !== prevUrlQ) {
+    setPrevUrlQ(values.q)
+    if (debouncedQ === qInput) {
+      setQInput(values.q)
+    }
+  }
+
+  useEffect(() => {
+    if (debouncedQ !== values.q) {
+      onChange({ q: debouncedQ })
+    }
+  }, [debouncedQ, values.q, onChange])
+
   return (
     <form className="filter-bar" role="search" onSubmit={(event) => event.preventDefault()}>
       <div className="filter-bar__field filter-bar__field--search">
@@ -25,8 +44,8 @@ export function FilterBar({ values, onChange, onReset }: FilterBarProps) {
           id="sensor-search"
           type="search"
           placeholder="Search sensors…"
-          value={values.q}
-          onChange={(event) => onChange({ q: event.target.value })}
+          value={qInput}
+          onChange={(event) => setQInput(event.target.value)}
         />
       </div>
       <div className="filter-bar__field">

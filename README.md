@@ -25,6 +25,13 @@ Point `VITE_API_BASE_URL` at a running TelemetryAPI instance (defaults to
 - `npm run build` — typecheck and production build
 - `npm run lint` — run ESLint
 - `npm run gen:api` — regenerate `src/api/schema.d.ts` from `openapi/telemetry.yaml`
+- `npm test` — unit/component tests (Vitest + React Testing Library + MSW)
+- `npm run test:coverage` — unit tests with coverage (threshold enforced: ≥70% statements)
+- `npm run test:e2e` — Playwright end-to-end suite (Chromium + Mobile Chrome).
+  Requires `npx playwright install chromium`. Boots a fresh seeded API on
+  `127.0.0.1:8001` and a preview build on `127.0.0.1:4173`, then runs the
+  specs in `e2e/` (filters, pagination, detail, date range, error recovery,
+  keyboard navigation, axe accessibility scans).
 
 ## API client
 

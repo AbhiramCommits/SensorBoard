@@ -134,8 +134,7 @@ export function SensorDetailPage() {
           </h2>
           {readingsQuery.data ? (
             <p className="recent-card__count" aria-live="polite">
-              Showing {Math.min(RECENT_READINGS_COUNT, readingsQuery.data.items.length)} of{' '}
-              {readingsQuery.data.total}
+              {`Showing ${Math.min(RECENT_READINGS_COUNT, readingsQuery.data.items.length)} of ${readingsQuery.data.total}`}
             </p>
           ) : null}
         </div>

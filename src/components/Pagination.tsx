@@ -57,7 +57,7 @@ export function Pagination({
         >
           Prev
         </button>
-        <div className="pagination__numbers" aria-label="Page numbers">
+        <div className="pagination__numbers" role="group" aria-label="Page numbers">
           {pageNumbers.map((number) => (
             <button
               key={number}
@@ -74,6 +74,7 @@ export function Pagination({
             </button>
           ))}
         </div>
+        <p className="pagination__indicator">{`Page ${page} of ${totalPages}`}</p>
         <button
           className="button button--ghost"
           type="button"

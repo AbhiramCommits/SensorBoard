@@ -7,7 +7,6 @@ import { FilterBar } from '../components/FilterBar'
 import { Pagination } from '../components/Pagination'
 import { SensorTable } from '../components/SensorTable'
 import { SkeletonRows } from '../components/Skeleton'
-import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useSensors } from '../hooks/useSensors'
 import { getErrorMessage } from '../utils/errors'
 import {
@@ -24,7 +23,6 @@ export function SensorListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const filters = useMemo(() => parseSensorListFilters(searchParams), [searchParams])
-  const debouncedQ = useDebouncedValue(filters.q, 300)
 
   const applyFilterPatch = useCallback(
     (patch: Partial<SensorListFilters>) => {
@@ -54,7 +52,7 @@ export function SensorListPage() {
 
   const apiParams: ListSensorsParams = useMemo(
     () => ({
-      q: debouncedQ === '' ? undefined : debouncedQ,
+      q: filters.q === '' ? undefined : filters.q,
       type: filters.type === '' ? undefined : filters.type,
       status: filters.status === '' ? undefined : filters.status,
       start: dateToStartParam(filters.start),
@@ -62,7 +60,7 @@ export function SensorListPage() {
       page: filters.page,
       page_size: filters.pageSize,
     }),
-    [debouncedQ, filters],
+    [filters],
   )
 
   const { data, isPending, isError, error, refetch } = useSensors(apiParams)
