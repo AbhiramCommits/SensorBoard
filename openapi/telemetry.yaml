@@ -1,0 +1,247 @@
+openapi: 3.1.0
+info:
+  title: TelemetryAPI
+  version: 1.0.0
+  description: API for querying sensors and ingesting sensor readings.
+paths:
+  /api/sensors:
+    get:
+      operationId: listSensors
+      summary: List sensors
+      parameters:
+        - name: q
+          in: query
+          description: Free-text search across sensor name and location.
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/SensorType'
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/SensorStatus'
+        - name: page
+          in: query
+          description: 1-based page number.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of items per page.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Paginated list of sensors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorPage'
+  /api/sensors/{id}:
+    get:
+      operationId: getSensor
+      summary: Get a single sensor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The sensor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sensor'
+        '404':
+          description: Sensor not found.
+  /api/sensors/{id}/readings:
+    get:
+      operationId: listReadings
+      summary: List readings for a sensor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: start
+          in: query
+          description: Inclusive start of range (ISO 8601).
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          description: Inclusive end of range (ISO 8601).
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        '200':
+          description: Readings for the sensor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingList'
+        '404':
+          description: Sensor not found.
+  /api/readings/bulk:
+    post:
+      operationId: ingestReadings
+      summary: Ingest readings in bulk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [readings]
+              properties:
+                readings:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ReadingInput'
+      responses:
+        '200':
+          description: Ingest result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkIngestResult'
+        '422':
+          description: Invalid request body.
+  /healthz:
+    get:
+      operationId: healthz
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    const: ok
+components:
+  schemas:
+    SensorType:
+      type: string
+      enum: [temperature, humidity, pressure, vibration]
+    SensorStatus:
+      type: string
+      enum: [online, offline, degraded]
+    Sensor:
+      type: object
+      required: [id, name, type, status, location, unit, updated_at]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/SensorType'
+        status:
+          $ref: '#/components/schemas/SensorStatus'
+        location:
+          type: string
+        unit:
+          type: string
+        last_reading:
+          oneOf:
+            - type: number
+            - type: 'null'
+        updated_at:
+          type: string
+          format: date-time
+    Reading:
+      type: object
+      required: [sensor_id, value, recorded_at]
+      properties:
+        sensor_id:
+          type: string
+        value:
+          type: number
+        recorded_at:
+          type: string
+          format: date-time
+    ReadingInput:
+      type: object
+      required: [sensor_id, value, recorded_at]
+      properties:
+        sensor_id:
+          type: string
+        value:
+          type: number
+        recorded_at:
+          type: string
+          format: date-time
+    SensorPage:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sensor'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+    ReadingList:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reading'
+        total:
+          type: integer
+    BulkIngestResult:
+      type: object
+      required: [accepted, rejected, errors]
+      properties:
+        accepted:
+          type: integer
+        rejected:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            required: [index, message]
+            properties:
+              index:
+                type: integer
+              message:
+                type: string
