@@ -1,16 +1,21 @@
 import os
 
-os.environ["DATABASE_URL"] = "sqlite://"
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
+
+if TEST_DATABASE_URL:
+    os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+else:
+    os.environ["DATABASE_URL"] = "sqlite://"
 
 from datetime import datetime  # noqa: E402
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
-from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy import create_engine, event  # noqa: E402
 from sqlalchemy.orm import sessionmaker  # noqa: E402
 from sqlalchemy.pool import StaticPool  # noqa: E402
 
-from app.db import Base, get_db  # noqa: E402
+from app.db import Base, get_db, set_sqlite_pragma  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models import Reading, Sensor  # noqa: E402
 
@@ -76,14 +81,24 @@ READINGS = [
 ]
 
 
+def build_engine():
+    if TEST_DATABASE_URL:
+        engine = create_engine(TEST_DATABASE_URL)
+    else:
+        engine = create_engine(
+            "sqlite://",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        event.listen(engine, "connect", set_sqlite_pragma)
+    return engine
+
+
 @pytest.fixture()
 def client():
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
+    engine = build_engine()
     TestingSession = sessionmaker(bind=engine, expire_on_commit=False)
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     with TestingSession() as session:
         session.add_all(Sensor(**row) for row in SENSORS)
@@ -99,3 +114,4 @@ def client():
         yield test_client
     app.dependency_overrides.clear()
     Base.metadata.drop_all(engine)
+    engine.dispose()

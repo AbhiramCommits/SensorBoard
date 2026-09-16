@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+coverage
+test-results
+playwright-report
+.git
+.github
+docs
+e2e
+backend
+src/test
+*.md
+LICENSE
+.env
+.env.*
