@@ -6,9 +6,15 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     groups:
+      # Only minor/patch updates are grouped; each major upgrade arrives as its
+      # own PR. A grouped PR mixing React 19, TypeScript 7, ESLint 10, Vitest 5
+      # and MSW 3 broke npm ci on main (ESLint 10 vs eslint-plugin-jsx-a11y).
       frontend:
         patterns:
           - '*'
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: pip
     directory: /backend
